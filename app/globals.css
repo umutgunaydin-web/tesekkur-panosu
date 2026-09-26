@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-plus-jakarta), system-ui, sans-serif;
+  --font-hand: var(--font-caveat), "Plus Jakarta Sans", cursive;
+
+  /* AloTech moru */
+  --color-brand-950: #260c4d;
+  --color-brand-900: #331066;
+  --color-brand-800: #421a85;
+  --color-brand-700: #5b21b6;
+  --color-brand-500: #7c3aed;
+  --color-brand-200: #d8cbf7;
+  --color-brand-100: #ebe3fb;
+  --color-brand-50: #f5f1fd;
+
+  --color-ink: #231343;
+  --color-ink-soft: #4b3a6b;
+  --color-sun: #fbc93d;
+}
+
+:root {
+  --background: #f5f2fb;
+  --foreground: #231343;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Kiosk modunda TV ekranında imleç ve kaydırma çubuğu görünmesin. */
+.kiosk-screen {
+  cursor: none;
+  overflow: hidden;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Uzun mesajları kart yüksekliğini bozmadan kırpar. */
+.clamp-lines {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
