@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "import:employees": "node --experimental-strip-types scripts/import-employees.ts",
-    "test": "tsx --test lib/moderation/settle.test.ts tests/moderation-rls.test.ts"
+    "test": "tsx --test lib/moderation/settle.test.ts lib/moderation/attempt.test.ts tests/moderation-rls.test.ts"
   },
   "dependencies": {
     "@google/genai": "^2.24.0",

@@ -1,4 +1,7 @@
+import { localModerationVerdict } from "./local";
 import { parseModerationVerdict, type ModerationVerdict } from "./verdict";
+
+const MODERATION_FAILURE_REASON = "Moderasyon servisi yanıt veremedi.";
 
 export type ModerationStatus =
   | "pending"
@@ -103,21 +106,23 @@ export async function settleModeration(
     };
   }
 
-  let verdict: ModerationVerdict | null = null;
+  let verdict: ModerationVerdict | null = localModerationVerdict(row.message);
   let errorType: string | null = null;
 
-  try {
-    verdict = parseModerationVerdict(
-      await ports.classify({
-        recognitionId: row.id,
-        message: row.message,
-        category: row.category,
-        recipientName: row.recipientName,
-      }),
-    );
-    if (!verdict) errorType = "invalid_response";
-  } catch (error) {
-    errorType = errorTypeOf(error);
+  if (!verdict) {
+    try {
+      verdict = parseModerationVerdict(
+        await ports.classify({
+          recognitionId: row.id,
+          message: row.message,
+          category: row.category,
+          recipientName: row.recipientName,
+        }),
+      );
+      if (!verdict) errorType = "invalid_response";
+    } catch (error) {
+      errorType = errorTypeOf(error);
+    }
   }
 
   const moderatedAt = ports.now().toISOString();
@@ -133,7 +138,7 @@ export async function settleModeration(
     : {
         status: "moderation_error",
         moderationDecision: null,
-        moderationReason: null,
+        moderationReason: MODERATION_FAILURE_REASON,
         moderationConfidence: null,
         moderatedAt,
         publishedAt: null,

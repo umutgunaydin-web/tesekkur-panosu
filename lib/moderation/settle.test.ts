@@ -8,7 +8,7 @@ import {
   type ModerationPorts,
   type StoredRecognition,
 } from "./settle";
-import { parseModerationVerdict } from "./verdict";
+import { parseModerationPayload, parseModerationVerdict } from "./verdict";
 
 const NOW = new Date("2026-09-26T00:00:00.000Z");
 
@@ -63,7 +63,7 @@ function harness(options: {
   };
 }
 
-test("parse accepts a valid verdict and rejects unknown decisions", () => {
+test("parse kabul eder, yüzde güveni ve bozuk sarmalı düzeltir", () => {
   assert.deepEqual(
     parseModerationVerdict({
       decision: "APPROVE",
@@ -79,6 +79,20 @@ test("parse accepts a valid verdict and rejects unknown decisions", () => {
   assert.equal(
     parseModerationVerdict({ decision: "APPROVE", reason: "", confidence: 1.2 }),
     null,
+  );
+  assert.equal(
+    parseModerationVerdict({
+      decision: " approve ",
+      reason: "Teşekkür.",
+      confidence: 92,
+    })?.confidence,
+    0.92,
+  );
+  assert.equal(
+    parseModerationVerdict(
+      parseModerationPayload('not json {"decision":"REJECT","reason":"Spam.","confidence":0.4}'),
+    )?.decision,
+    "REJECT",
   );
 });
 
@@ -154,7 +168,27 @@ test("Gemini erişilemezse mesaj yayınlanmaz", async () => {
   assert.equal(result.errorType, "Error");
   assert.equal(state.saves[0]?.publishedAt, null);
   assert.equal(state.saves[0]?.status, "moderation_error");
+  assert.equal(state.saves[0]?.moderationReason, "Moderasyon servisi yanıt veremedi.");
   assert.equal(state.emails.length, 0);
+});
+
+test("yalnız emoji Gemini'ye gitmeden reddedilir", async () => {
+  const row = pendingRow("🌸🧚🏻🤍💜");
+  let calls = 0;
+  const state = harness({
+    row,
+    classify: async () => {
+      calls += 1;
+      throw new Error("should not be called");
+    },
+  });
+
+  const result = await settleModeration(row.id, state.ports);
+
+  assert.equal(calls, 0);
+  assert.equal(result.outcome, "rejected");
+  assert.equal(state.saves[0]?.status, "rejected");
+  assert.match(state.saves[0]?.moderationReason ?? "", /emoji/);
 });
 
 test("geçersiz model çıktısı yayınlamaz", async () => {

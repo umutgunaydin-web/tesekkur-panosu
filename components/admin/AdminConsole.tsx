@@ -4,7 +4,12 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { changeAdminPassword, removeFromWall, restoreToWall } from "@/app/admin/actions";
+import {
+  changeAdminPassword,
+  publishModerationError,
+  removeFromWall,
+  restoreToWall,
+} from "@/app/admin/actions";
 import { Avatar } from "@/components/wall/Avatar";
 import { Button } from "@/components/ui/button";
 import { ADMIN_PAGE_SIZE, type AdminRecognition } from "@/lib/admin-shared";
@@ -75,6 +80,7 @@ export function AdminConsole({
   const [selected, setSelected] = useState<AdminRecognition | null>(null);
   const [removeTarget, setRemoveTarget] = useState<AdminRecognition | null>(null);
   const [restoreTarget, setRestoreTarget] = useState<AdminRecognition | null>(null);
+  const [publishTarget, setPublishTarget] = useState<AdminRecognition | null>(null);
   const [reason, setReason] = useState("");
   const [actionError, setActionError] = useState<string | null>(null);
   const [passwordOpen, setPasswordOpen] = useState(false);
@@ -109,6 +115,21 @@ export function AdminConsole({
       }
       setRemoveTarget(null);
       setReason("");
+      setSelected(null);
+      router.refresh();
+    });
+  };
+
+  const confirmPublish = () => {
+    if (!publishTarget) return;
+    setActionError(null);
+    startTransition(async () => {
+      const result = await publishModerationError(publishTarget.id);
+      if (result.status === "error") {
+        setActionError(result.message);
+        return;
+      }
+      setPublishTarget(null);
       setSelected(null);
       router.refresh();
     });
@@ -317,6 +338,15 @@ export function AdminConsole({
                           Tekrar Yayınla
                         </Button>
                       ) : null}
+                      {row.status === "moderation_error" ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setPublishTarget(row)}
+                        >
+                          Yayına Al
+                        </Button>
+                      ) : null}
                     </td>
                   </tr>
                 ))
@@ -506,6 +536,29 @@ export function AdminConsole({
               </Button>
             </div>
           </form>
+        </div>
+      ) : null}
+
+      {publishTarget ? (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/40 p-4">
+          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-xl">
+            <h2 className="text-xl font-extrabold text-brand-950">
+              Mesaj yayına alınsın mı?
+            </h2>
+            <p className="mt-2 text-sm text-slate-600">
+              Moderasyon servisi bu kayıt için karar üretemedi. Onaylarsan mesaj
+              panoda görünür. Reddedilen mesajlar bu yolla yayınlanamaz.
+            </p>
+            <p className="mt-3 text-sm text-slate-800">{publishTarget.message}</p>
+            <div className="mt-5 flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setPublishTarget(null)}>
+                Vazgeç
+              </Button>
+              <Button type="button" disabled={isPending} onClick={confirmPublish}>
+                Yayına Al
+              </Button>
+            </div>
+          </div>
         </div>
       ) : null}
 

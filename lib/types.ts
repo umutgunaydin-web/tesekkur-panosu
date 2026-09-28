@@ -122,14 +122,14 @@ export type Database = {
           id: string;
           recognition_id: string;
           admin_user_id: string;
-          action: "REMOVE" | "RESTORE";
+          action: "REMOVE" | "RESTORE" | "PUBLISH";
           reason: string | null;
           created_at: string;
         };
         Insert: {
           recognition_id: string;
           admin_user_id: string;
-          action: "REMOVE" | "RESTORE";
+          action: "REMOVE" | "RESTORE" | "PUBLISH";
           reason?: string | null;
           id?: string;
           created_at?: string;

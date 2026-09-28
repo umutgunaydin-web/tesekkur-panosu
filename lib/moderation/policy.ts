@@ -22,6 +22,7 @@ APPROVE when:
 - the wording is respectful
 - the message celebrates support, effort, teamwork, contribution, creativity, inspiration or positive behavior
 - friendly and clearly positive humor is acceptable
+- emoji or symbols that accompany a genuine thank-you do not make the message invalid
 
 REJECT when the message contains or primarily functions as:
 - profanity
@@ -44,7 +45,7 @@ REJECT when the message contains or primarily functions as:
 - criticism disguised as a thank-you
 - complaints disguised as recognition
 - content likely to make the recipient uncomfortable when displayed publicly
-- unrelated spam or meaningless content
+- unrelated spam, or a message made only of emoji and symbols with no appreciation sentence
 
 IMPORTANT EXAMPLES:
 

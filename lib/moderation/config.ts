@@ -11,5 +11,5 @@ export const GEMINI_THINKING_LEVEL = ThinkingLevel.LOW;
 
 export const MODERATION_TIMEOUT_MS = 20_000;
 
-/** Geçici 429/503 yanıtlarında bir kez daha denenir. */
-export const MODERATION_RETRY_DELAY_MS = 1_500;
+/** Denemeler arasında beklenir. İkinci aralık bunun iki katıdır. */
+export const MODERATION_RETRY_DELAY_MS = 4_000;
