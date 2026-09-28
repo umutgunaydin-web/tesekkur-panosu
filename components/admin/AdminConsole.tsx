@@ -6,7 +6,9 @@ import { useRouter } from "next/navigation";
 
 import {
   changeAdminPassword,
+  deleteRejectedMessage,
   publishModerationError,
+  publishRejected,
   removeFromWall,
   restoreToWall,
 } from "@/app/admin/actions";
@@ -81,6 +83,9 @@ export function AdminConsole({
   const [removeTarget, setRemoveTarget] = useState<AdminRecognition | null>(null);
   const [restoreTarget, setRestoreTarget] = useState<AdminRecognition | null>(null);
   const [publishTarget, setPublishTarget] = useState<AdminRecognition | null>(null);
+  const [rejectedPublishTarget, setRejectedPublishTarget] =
+    useState<AdminRecognition | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<AdminRecognition | null>(null);
   const [reason, setReason] = useState("");
   const [actionError, setActionError] = useState<string | null>(null);
   const [passwordOpen, setPasswordOpen] = useState(false);
@@ -130,6 +135,36 @@ export function AdminConsole({
         return;
       }
       setPublishTarget(null);
+      setSelected(null);
+      router.refresh();
+    });
+  };
+
+  const confirmRejectedPublish = () => {
+    if (!rejectedPublishTarget) return;
+    setActionError(null);
+    startTransition(async () => {
+      const result = await publishRejected(rejectedPublishTarget.id);
+      if (result.status === "error") {
+        setActionError(result.message);
+        return;
+      }
+      setRejectedPublishTarget(null);
+      setSelected(null);
+      router.refresh();
+    });
+  };
+
+  const confirmDelete = () => {
+    if (!deleteTarget) return;
+    setActionError(null);
+    startTransition(async () => {
+      const result = await deleteRejectedMessage(deleteTarget.id);
+      if (result.status === "error") {
+        setActionError(result.message);
+        return;
+      }
+      setDeleteTarget(null);
       setSelected(null);
       router.refresh();
     });
@@ -347,6 +382,25 @@ export function AdminConsole({
                           Yayına Al
                         </Button>
                       ) : null}
+                      {row.status === "rejected" ? (
+                        <div className="flex flex-wrap justify-end gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setRejectedPublishTarget(row)}
+                          >
+                            Yayına Al
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="border-rose-200 text-rose-700 hover:bg-rose-50"
+                            onClick={() => setDeleteTarget(row)}
+                          >
+                            Kalıcı Sil
+                          </Button>
+                        </div>
+                      ) : null}
                     </td>
                   </tr>
                 ))
@@ -547,7 +601,7 @@ export function AdminConsole({
             </h2>
             <p className="mt-2 text-sm text-slate-600">
               Moderasyon servisi bu kayıt için karar üretemedi. Onaylarsan mesaj
-              panoda görünür. Reddedilen mesajlar bu yolla yayınlanamaz.
+              panoda görünür.
             </p>
             <p className="mt-3 text-sm text-slate-800">{publishTarget.message}</p>
             <div className="mt-5 flex justify-end gap-2">
@@ -556,6 +610,59 @@ export function AdminConsole({
               </Button>
               <Button type="button" disabled={isPending} onClick={confirmPublish}>
                 Yayına Al
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {rejectedPublishTarget ? (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/40 p-4">
+          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-xl">
+            <h2 className="text-xl font-extrabold text-brand-950">
+              Ret yayına alınsın mı?
+            </h2>
+            <p className="mt-2 text-sm text-slate-600">
+              Bu yalnızca hatalı bir ret içindir. Onaylarsan mesaj panoda görünür.
+            </p>
+            <p className="mt-3 text-sm text-slate-800">{rejectedPublishTarget.message}</p>
+            <div className="mt-5 flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setRejectedPublishTarget(null)}
+              >
+                Vazgeç
+              </Button>
+              <Button type="button" disabled={isPending} onClick={confirmRejectedPublish}>
+                Yayına Al
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {deleteTarget ? (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/40 p-4">
+          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-xl">
+            <h2 className="text-xl font-extrabold text-brand-950">
+              Mesaj kalıcı olarak silinsin mi?
+            </h2>
+            <p className="mt-2 text-sm text-slate-600">
+              Yalnızca reddedilmiş kayıt silinir. Bu işlem geri alınamaz.
+            </p>
+            <p className="mt-3 text-sm text-slate-800">{deleteTarget.message}</p>
+            <div className="mt-5 flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setDeleteTarget(null)}>
+                Vazgeç
+              </Button>
+              <Button
+                type="button"
+                disabled={isPending}
+                className="bg-rose-700 text-white hover:bg-rose-800"
+                onClick={confirmDelete}
+              >
+                Kalıcı Sil
               </Button>
             </div>
           </div>

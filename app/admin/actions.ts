@@ -175,6 +175,86 @@ export async function publishModerationError(
   return { status: "success" };
 }
 
+export async function publishRejected(
+  recognitionId: string,
+): Promise<AdminActionResult> {
+  const user = await requireAdmin();
+  const admin = getSupabaseAdminClient();
+
+  if (!admin) {
+    return { status: "error", message: "Yönetici veritabanı bağlantısı yok." };
+  }
+
+  const publishedAt = new Date().toISOString();
+  const reason = "Hatalı ret sonrası yönetici yayına aldı.";
+  const { data, error } = await admin
+    .from("thanks_messages")
+    .update({
+      status: "approved",
+      moderation_decision: "APPROVE",
+      moderation_reason: reason,
+      published_at: publishedAt,
+      moderated_at: publishedAt,
+    })
+    .eq("id", recognitionId)
+    .eq("status", "rejected")
+    .select("id");
+
+  if (error || !data?.length) {
+    return { status: "error", message: "Mesaj yayına alınamadı." };
+  }
+
+  await recordAction(recognitionId, user.id, "PUBLISH", reason);
+  revalidatePath("/admin");
+  revalidatePath("/");
+
+  return { status: "success" };
+}
+
+export async function deleteRejectedMessage(
+  recognitionId: string,
+): Promise<AdminActionResult> {
+  await requireAdmin();
+  const admin = getSupabaseAdminClient();
+
+  if (!admin) {
+    return { status: "error", message: "Yönetici veritabanı bağlantısı yok." };
+  }
+
+  const { data: existing, error: readError } = await admin
+    .from("thanks_messages")
+    .select("id")
+    .eq("id", recognitionId)
+    .eq("status", "rejected")
+    .maybeSingle();
+
+  if (readError || !existing) {
+    return { status: "error", message: "Yalnızca reddedilmiş mesaj silinebilir." };
+  }
+
+  await admin
+    .from("recognition_admin_actions")
+    .delete()
+    .eq("recognition_id", recognitionId);
+  await admin.from("wall_signals").delete().eq("recognition_id", recognitionId);
+
+  const { data, error } = await admin
+    .from("thanks_messages")
+    .delete()
+    .eq("id", recognitionId)
+    .eq("status", "rejected")
+    .select("id");
+
+  if (error || !data?.length) {
+    return { status: "error", message: "Mesaj silinemedi." };
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/");
+
+  return { status: "success" };
+}
+
 export async function restoreToWall(
   recognitionId: string,
 ): Promise<AdminActionResult> {
