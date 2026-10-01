@@ -27,7 +27,7 @@ export async function requestClaudeVerdict(input: ClassifyInput): Promise<string
 
   const response = await client.messages.create({
     model: CLAUDE_MODERATION_MODEL,
-    max_tokens: 512,
+    max_tokens: 256,
     system: MODERATION_SYSTEM_INSTRUCTION,
     messages: [
       {
