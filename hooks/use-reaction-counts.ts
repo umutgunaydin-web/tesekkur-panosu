@@ -6,6 +6,9 @@ import { isSupabaseConfigured } from "@/lib/env";
 import { fetchReactionCounts, type ReactionMap } from "@/lib/reactions";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
+/** Realtime koparsa TV gün boyu açık kaldığı için sayılar bu aralıkla tazelenir. */
+const REFRESH_INTERVAL_MS = 60_000;
+
 /** Görünen kartların tepki sayıları; realtime ile anında güncellenir. */
 export function useReactionCounts(recognitionIds: string[]): ReactionMap {
   const [counts, setCounts] = useState<ReactionMap>({});
@@ -17,12 +20,17 @@ export function useReactionCounts(recognitionIds: string[]): ReactionMap {
     let active = true;
     const supabase = getSupabaseBrowserClient();
 
-    void fetchReactionCounts(supabase, key.split(",")).then((map) => {
-      if (active) setCounts((current) => ({ ...current, ...map }));
-    });
+    const load = () =>
+      void fetchReactionCounts(supabase, key.split(",")).then((map) => {
+        if (active) setCounts((current) => ({ ...current, ...map }));
+      });
+
+    load();
+    const intervalId = window.setInterval(load, REFRESH_INTERVAL_MS);
 
     return () => {
       active = false;
+      window.clearInterval(intervalId);
     };
   }, [key]);
 
