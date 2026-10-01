@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { SubmitForm } from "@/components/form/SubmitForm";
 import { AloTechLogo } from "@/components/wall/AloTechLogo";
@@ -27,6 +28,12 @@ export default async function SubmitPage() {
           <p className="mt-3 text-white/70">
             Yazdığın mesaj ofisteki Teşekkür Panosu ekranında anında görünecek.
           </p>
+          <Link
+            href="/pano"
+            className="mt-5 inline-flex rounded-full bg-white/10 px-4 py-2 text-sm font-bold text-white ring-1 ring-white/30"
+          >
+            Panodaki teşekkürlere göz at, tepki bırak →
+          </Link>
         </div>
       </header>
 

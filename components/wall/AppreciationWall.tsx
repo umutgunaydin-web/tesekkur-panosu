@@ -6,6 +6,7 @@ import { CategoryFilters } from "@/components/wall/CategoryFilters";
 import { PaginationDots } from "@/components/wall/PaginationDots";
 import { RecognitionGrid } from "@/components/wall/RecognitionGrid";
 import { WallHeader } from "@/components/wall/WallHeader";
+import { useReactionCounts } from "@/hooks/use-reaction-counts";
 import { useThanksStream } from "@/hooks/use-thanks-stream";
 import { filterMessages } from "@/lib/categories";
 import { CARDS_PER_PAGE, type ThanksMessage } from "@/lib/types";
@@ -25,6 +26,9 @@ export function AppreciationWall({
   const { messages, monthlyCount } = useThanksStream(
     initialMessages,
     initialMonthlyCount,
+  );
+  const reactions = useReactionCounts(
+    useMemo(() => messages.map((message) => message.id), [messages]),
   );
   const [activeFilter, setActiveFilter] = useState("all");
   const [page, setPage] = useState(0);
@@ -85,7 +89,7 @@ export function AppreciationWall({
 
       <section className="flex min-h-0 flex-1 flex-col gap-[clamp(8px,0.8vw,18px)] rounded-[30px] bg-white/65 p-[clamp(10px,1vw,22px)]">
         <div className="min-h-0 flex-1">
-          <RecognitionGrid messages={visibleMessages} />
+          <RecognitionGrid messages={visibleMessages} reactions={reactions} />
         </div>
 
         <PaginationDots

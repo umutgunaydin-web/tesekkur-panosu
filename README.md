@@ -164,3 +164,17 @@ okuyabilir. Dizin ekleme, güncelleme ve silme anon role kapalıdır.
 
 Formdaki "Adımı gizle, anonim gönder" seçeneği işaretlendiğinde kayıt `Anonim` gönderen
 adıyla yazılır. Panoda anonim mesajlar diğerleriyle aynı görsel ağırlıkta gösterilir.
+
+## Tepkiler, bildirimler ve istatistikler
+
+- `/pano` → telefondan panodaki mesajlara 👏 / 💜 bırakılan sayfa. Sayılar TV kartlarında
+  realtime görünür (`reaction_counts`). Cihaz başına mesaj ve tür için bir tepki.
+- Yayına giren teşekkür alıcıya e-postayla bildirilir (`lib/email/recipient.ts`), kayıt başına bir kez.
+  Resend'in `onboarding@resend.dev` adresi yalnız hesap sahibine gönderir; çalışanlara ulaşması için
+  `EMAIL_FROM` doğrulanmış bir alan adından olmalı.
+- `/admin/istatistik?ay=2026-10` → aylık özet: en çok teşekkür alan/eden, kategori, günlük dağılım,
+  en çok tepki alan mesajlar ve moderasyonu yapan model.
+
+Gönderim isimle yapılır; anonim seçenek yoktur. Kayıtlar yalnız sunucu aksiyonundan (service role)
+eklenir. Aynı IP'den 10 dakikada 20 gönderim ve Claude için günlük 200 moderasyon sınırı vardır
+(`lib/limits.ts`); sınır dolunca moderasyon Gemini ile sürer.

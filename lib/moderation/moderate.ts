@@ -1,7 +1,10 @@
 import "server-only";
 
+import { notifyRecipient } from "@/lib/email/recipient";
 import { sendModerationRejectionEmail } from "@/lib/email/rejection";
+import { CLAUDE_DAILY_LIMIT, istanbulDayStartIso } from "@/lib/limits";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
+import type { ModerationProvider } from "@/lib/types";
 
 import { classifyRecognition } from "./gemini";
 import {
@@ -58,6 +61,14 @@ export async function moderateRecognition(recognitionId: string): Promise<void> 
     return;
   }
 
+  const { count: claudeToday } = await admin
+    .from("thanks_messages")
+    .select("id", { count: "exact", head: true })
+    .eq("moderation_provider", "claude")
+    .gte("moderated_at", istanbulDayStartIso());
+  const allowClaude = (claudeToday ?? 0) < CLAUDE_DAILY_LIMIT;
+  let provider: ModerationProvider | null = null;
+
   const result = await settleModeration(recognitionId, {
     now: () => new Date(),
     load: async (id) => {
@@ -73,16 +84,26 @@ export async function moderateRecognition(recognitionId: string): Promise<void> 
 
       return toStored(data as RecognitionRecord);
     },
-    classify: (input) =>
-      classifyRecognition({
-        message: input.message,
-        category: input.category,
-        recipientName: input.recipientName,
-      }),
+    classify: async (input) => {
+      const classified = await classifyRecognition(
+        {
+          message: input.message,
+          category: input.category,
+          recipientName: input.recipientName,
+        },
+        { allowClaude },
+      );
+      provider = classified.provider;
+      return classified.verdict;
+    },
     save: async (id, patch) => {
       const { data, error } = await admin
         .from("thanks_messages")
-        .update(toUpdate(patch))
+        .update({
+          ...toUpdate(patch),
+          // Yerel kural Gemini/Claude çağrılmadan karar verirse classify çalışmaz.
+          moderation_provider: provider ?? (patch.moderationDecision ? "local" : null),
+        })
         .eq("id", id)
         .eq("status", "pending")
         .select("id");
@@ -107,8 +128,14 @@ export async function moderateRecognition(recognitionId: string): Promise<void> 
     },
   });
 
+  if (result.outcome === "approved") {
+    await notifyRecipient(recognitionId);
+  }
+
   console.info("[moderation]", {
     recognitionId,
+    provider,
+    claudeToday,
     decision: result.outcome,
     confidence: result.confidence,
     durationMs: result.durationMs,

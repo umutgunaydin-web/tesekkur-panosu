@@ -2,11 +2,12 @@
 
 import { after } from "next/server";
 
+import { getClientHash } from "@/lib/client-hash";
 import { isSupabaseConfigured } from "@/lib/env";
+import { minutesAgoIso, SUBMIT_LIMIT } from "@/lib/limits";
 import { pickRandomTheme } from "@/lib/message-theme";
 import { moderateRecognition } from "@/lib/moderation/moderate";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
-import { ANONYMOUS_SENDER } from "@/lib/types";
+import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { thanksFormSchema, type ThanksFormValues } from "@/lib/validation";
 
 export type SubmitThanksResult =
@@ -25,7 +26,9 @@ export async function submitThanksMessage(
     };
   }
 
-  if (!isSupabaseConfigured()) {
+  const supabase = isSupabaseConfigured() ? getSupabaseAdminClient() : null;
+
+  if (!supabase) {
     return {
       status: "error",
       message:
@@ -33,7 +36,23 @@ export async function submitThanksMessage(
     };
   }
 
-  const supabase = getSupabaseServerClient();
+  const clientHash = await getClientHash();
+
+  if (clientHash) {
+    const { count } = await supabase
+      .from("thanks_messages")
+      .select("id", { count: "exact", head: true })
+      .eq("client_hash", clientHash)
+      .gte("created_at", minutesAgoIso(SUBMIT_LIMIT.windowMinutes));
+
+    if ((count ?? 0) >= SUBMIT_LIMIT.max) {
+      return {
+        status: "error",
+        message: "Kısa sürede çok fazla teşekkür gönderildi. Birkaç dakika sonra tekrar dene.",
+      };
+    }
+  }
+
   const { data: employee, error: employeeError } = await supabase
     .from("employees")
     .select("id, name")
@@ -51,12 +70,14 @@ export async function submitThanksMessage(
   const recognitionId = crypto.randomUUID();
   const { error } = await supabase.from("thanks_messages").insert({
     id: recognitionId,
-    sender: parsed.data.is_anonymous ? ANONYMOUS_SENDER : parsed.data.sender,
+    sender: parsed.data.sender,
     receiver: employee.name,
     recipient_employee_id: employee.id,
     category_tag: parsed.data.category_tag,
     message: parsed.data.message,
     color_theme: pickRandomTheme(),
+    status: "pending",
+    client_hash: clientHash,
   });
 
   if (error) {
@@ -67,7 +88,7 @@ export async function submitThanksMessage(
     };
   }
 
-  // Cevap insert bitince döner. Gemini bu isteği uzatmaz.
+  // Cevap insert bitince döner. Moderasyon bu isteği uzatmaz.
   after(async () => {
     try {
       await moderateRecognition(recognitionId);

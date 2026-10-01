@@ -11,12 +11,19 @@ import {
 } from "./config";
 import { isClaudeConfigured, requestClaudeVerdict } from "./claude";
 import { localModerationVerdict } from "./local";
+import type { ModerationProvider } from "@/lib/types";
+
 import { MODERATION_SYSTEM_INSTRUCTION } from "./policy";
 import {
   parseModerationPayload,
   parseModerationVerdict,
   type ModerationVerdict,
 } from "./verdict";
+
+export type ClassifiedVerdict = {
+  verdict: ModerationVerdict;
+  provider: ModerationProvider;
+};
 
 export type ClassifyInput = {
   message: string;
@@ -64,23 +71,21 @@ async function requestVerdict(
 
 /**
  * Önce Claude'a sorar; yanıt yoksa veya geçersizse Gemini zincirine düşer.
- * Hangi sağlayıcının karar verdiği loglanır.
+ * Kararı hangi sağlayıcının verdiği kayda yazılır.
  */
 export async function classifyRecognition(
   input: ClassifyInput,
-): Promise<ModerationVerdict> {
+  options: { allowClaude: boolean },
+): Promise<ClassifiedVerdict> {
   const local = localModerationVerdict(input.message);
-  if (local) return local;
+  if (local) return { verdict: local, provider: "local" };
 
-  if (isClaudeConfigured()) {
+  if (options.allowClaude && isClaudeConfigured()) {
     try {
       const verdict = parseModerationVerdict(
         parseModerationPayload(await requestClaudeVerdict(input)),
       );
-      if (verdict) {
-        console.info("[moderation]", { provider: "claude" });
-        return verdict;
-      }
+      if (verdict) return { verdict, provider: "claude" };
       console.warn("[moderation]", { provider: "claude", errorType: "invalid_response" });
     } catch (error) {
       const status = (error as { status?: unknown }).status;
@@ -91,9 +96,7 @@ export async function classifyRecognition(
     }
   }
 
-  const verdict = await classifyWithGemini(input);
-  console.info("[moderation]", { provider: "gemini" });
-  return verdict;
+  return { verdict: await classifyWithGemini(input), provider: "gemini" };
 }
 
 async function classifyWithGemini(

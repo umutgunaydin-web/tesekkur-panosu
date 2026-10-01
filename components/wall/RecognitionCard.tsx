@@ -9,7 +9,9 @@ import {
   resolveTheme,
   type CardDecoration,
 } from "@/lib/message-theme";
+import { REACTION_EMOJI } from "@/lib/reactions";
 import { toDativeCase } from "@/lib/turkish";
+import { REACTION_KINDS, type ReactionCounts } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export type RecognitionCardProps = {
@@ -23,6 +25,7 @@ export type RecognitionCardProps = {
   message: string;
   category: string;
   colorTheme: string;
+  reactions?: ReactionCounts;
 };
 
 const DECORATION_ICONS: Record<CardDecoration, typeof Heart> = {
@@ -51,7 +54,9 @@ export function RecognitionCard({
   message,
   category,
   colorTheme,
+  reactions,
 }: RecognitionCardProps) {
+  const reactionKinds = REACTION_KINDS.filter((kind) => (reactions?.[kind] ?? 0) > 0);
   const theme = resolveTheme(colorTheme);
   const decoration = resolveDecoration(index);
   const Decoration = DECORATION_ICONS[decoration];
@@ -110,11 +115,24 @@ export function RecognitionCard({
         >
           #{category}
         </span>
-        <span
-          className="font-semibold text-ink-soft"
-          style={{ fontSize: "clamp(11px, 0.85vw, 18px)" }}
-        >
-          — {senderName}
+        <span className="flex min-w-0 items-center gap-[clamp(6px,0.6vw,14px)]">
+          {reactionKinds.map((kind) => (
+            <motion.span
+              key={`${kind}-${reactions?.[kind]}`}
+              initial={{ scale: 1.35 }}
+              animate={{ scale: 1 }}
+              className="rounded-full bg-white/70 px-[clamp(6px,0.5vw,12px)] py-[clamp(2px,0.2vw,5px)] font-bold text-brand-950 tabular-nums"
+              style={{ fontSize: "clamp(10px, 0.8vw, 17px)" }}
+            >
+              {REACTION_EMOJI[kind]} {reactions?.[kind]}
+            </motion.span>
+          ))}
+          <span
+            className="truncate font-semibold text-ink-soft"
+            style={{ fontSize: "clamp(11px, 0.85vw, 18px)" }}
+          >
+            — {senderName}
+          </span>
         </span>
       </footer>
 

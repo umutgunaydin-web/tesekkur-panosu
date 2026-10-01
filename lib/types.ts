@@ -80,7 +80,16 @@ export type ThanksModerationUpdate = {
   removed_at?: string | null;
   removed_by?: string | null;
   remove_reason?: string | null;
+  moderation_provider?: ModerationProvider | null;
+  recipient_email_sent_at?: string | null;
 };
+
+export type ModerationProvider = "claude" | "gemini" | "local";
+
+export const REACTION_KINDS = ["clap", "heart"] as const;
+export type ReactionKind = (typeof REACTION_KINDS)[number];
+
+export type ReactionCounts = { clap: number; heart: number };
 
 export type Database = {
   public: {
@@ -153,6 +162,40 @@ export type Database = {
         Update: Partial<Employee>;
         Relationships: [];
       };
+      recognition_reactions: {
+        Row: {
+          recognition_id: string;
+          device_id: string;
+          kind: ReactionKind;
+          client_hash: string | null;
+          created_at: string;
+        };
+        Insert: {
+          recognition_id: string;
+          device_id: string;
+          kind: ReactionKind;
+          client_hash?: string | null;
+          created_at?: string;
+        };
+        Update: { client_hash?: string | null };
+        Relationships: [];
+      };
+      reaction_counts: {
+        Row: {
+          recognition_id: string;
+          clap: number;
+          heart: number;
+          updated_at: string;
+        };
+        Insert: {
+          recognition_id: string;
+          clap?: number;
+          heart?: number;
+          updated_at?: string;
+        };
+        Update: { clap?: number; heart?: number; updated_at?: string };
+        Relationships: [];
+      };
       thanks_messages: {
         Row: {
           id: string;
@@ -175,10 +218,15 @@ export type Database = {
           removed_at: string | null;
           removed_by: string | null;
           remove_reason: string | null;
+          client_hash: string | null;
+          moderation_provider: ModerationProvider | null;
+          recipient_email_sent_at: string | null;
         };
         Insert: ThanksMessageInsert & {
           id?: string;
           created_at?: string;
+          client_hash?: string | null;
+          status?: ModerationStatus;
           receiver_email?: string | null;
           receiver_avatar_url?: string | null;
         };
@@ -210,5 +258,5 @@ export const MAX_VISIBLE_MESSAGES = 30;
 /** Referans tasarımdaki 3 sütun x 2 satır yerleşimi. */
 export const CARDS_PER_PAGE = 6;
 
-/** Anonim gönderimlerde kaydedilen gönderen adı. */
+/** Eski anonim kayıtların gönderen adı. Yeni gönderimde bu ad kabul edilmez. */
 export const ANONYMOUS_SENDER = "Anonim";

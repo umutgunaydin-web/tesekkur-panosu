@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireAdmin } from "@/lib/auth";
+import { notifyRecipient } from "@/lib/email/recipient";
 import { moderateRecognition } from "@/lib/moderation/moderate";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSessionClient } from "@/lib/supabase/session";
@@ -169,6 +170,7 @@ export async function publishModerationError(
     return { status: "error", message: "Mesaj yayına alınamadı." };
   }
 
+  await notifyRecipient(recognitionId);
   await recordAction(recognitionId, user.id, "PUBLISH", reason);
   revalidatePath("/admin");
   revalidatePath("/");
@@ -247,6 +249,7 @@ export async function publishRejected(
     return { status: "error", message: "Mesaj yayına alınamadı." };
   }
 
+  await notifyRecipient(recognitionId);
   await recordAction(recognitionId, user.id, "PUBLISH", reason);
   revalidatePath("/admin");
   revalidatePath("/");

@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev-no-email",
+      "runtimeExecutable": "env",
+      "runtimeArgs": ["RESEND_API_KEY=disabled-for-local-test", "npx", "next", "dev", "-p", "3100"],
+      "port": 3100
+    }
+  ]
+}

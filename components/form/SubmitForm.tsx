@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
@@ -20,7 +21,6 @@ const MESSAGE_COMFORT_LENGTH = 150;
 
 const DEFAULT_VALUES: ThanksFormValues = {
   sender: "",
-  is_anonymous: false,
   recipient_employee_id: "",
   category_tag: "Destek",
   message: "",
@@ -50,6 +50,9 @@ function SuccessPanel({ onReset }: { onReset: () => void }) {
       <Button size="lg" variant="outline" onClick={onReset} className="w-full">
         Yeni teşekkür gönder
       </Button>
+      <Link href="/pano" className="text-sm font-bold text-violet-700">
+        Panodaki teşekkürlere tepki bırak →
+      </Link>
     </motion.div>
   );
 }
@@ -73,7 +76,6 @@ export function SubmitForm({ employees }: { employees: EmployeePublic[] }) {
   });
 
   const messageLength = watch("message").length;
-  const isAnonymous = watch("is_anonymous");
 
   const onSubmit = handleSubmit((values) => {
     setServerError(null);
@@ -206,22 +208,12 @@ export function SubmitForm({ employees }: { employees: EmployeePublic[] }) {
         <Input
           id="sender"
           autoComplete="name"
-          placeholder={isAnonymous ? "Anonim olarak paylaşılacak" : "Örn. Elif Yılmaz"}
-          disabled={isAnonymous}
+          placeholder="Örn. Elif Yılmaz"
           aria-invalid={Boolean(errors.sender)}
           className="mt-2"
           {...register("sender")}
         />
         <FieldError message={errors.sender?.message} />
-
-        <label className="mt-3 flex cursor-pointer items-center gap-2.5 text-sm font-medium text-slate-600">
-          <input
-            type="checkbox"
-            className="size-4 accent-violet-700"
-            {...register("is_anonymous")}
-          />
-          Adımı gizle, anonim gönder
-        </label>
       </div>
 
       {serverError ? (

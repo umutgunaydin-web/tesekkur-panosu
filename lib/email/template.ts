@@ -36,3 +36,36 @@ export function buildRejectionEmail(input: RejectionEmailInput): {
     ].join("\n"),
   };
 }
+
+export type RecipientEmailInput = {
+  recipientName: string;
+  senderName: string;
+  category: string;
+  message: string;
+  wallUrl: string;
+};
+
+export function buildRecipientEmail(input: RecipientEmailInput): {
+  subject: string;
+  text: string;
+} {
+  const firstName = input.recipientName.trim().split(/\s+/)[0] ?? input.recipientName;
+
+  return {
+    subject: `${input.senderName} sana bir teşekkür bıraktı 💜`,
+    text: [
+      `Merhaba ${firstName},`,
+      "",
+      `${input.senderName}, Teşekkür Panosu'nda sana bir mesaj bıraktı:`,
+      "",
+      `"${input.message}"`,
+      `#${input.category}`,
+      "",
+      "Mesajın şu an ofisteki ekranda yayında. Panodaki diğer teşekkürleri görmek ve tepki bırakmak için:",
+      input.wallUrl,
+      "",
+      "Sevgiler,",
+      "AloTech Teşekkür Panosu",
+    ].join("\n"),
+  };
+}

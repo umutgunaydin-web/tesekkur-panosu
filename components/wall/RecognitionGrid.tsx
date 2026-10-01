@@ -3,10 +3,12 @@
 import { AnimatePresence } from "framer-motion";
 
 import { RecognitionCard } from "@/components/wall/RecognitionCard";
+import type { ReactionMap } from "@/lib/reactions";
 import type { ThanksMessage } from "@/lib/types";
 
 type RecognitionGridProps = {
   messages: ThanksMessage[];
+  reactions: ReactionMap;
 };
 
 function EmptyState() {
@@ -33,7 +35,7 @@ function EmptyState() {
  * Referans tasarımdaki 3 sütun x 2 satır yerleşimi. Üçten az mesaj kaldığında
  * alt satır boş kalmasın diye tek satıra düşer.
  */
-export function RecognitionGrid({ messages }: RecognitionGridProps) {
+export function RecognitionGrid({ messages, reactions }: RecognitionGridProps) {
   const rowCount = messages.length > 3 ? 2 : 1;
 
   return (
@@ -56,6 +58,7 @@ export function RecognitionGrid({ messages }: RecognitionGridProps) {
               message={message.message}
               category={message.category_tag}
               colorTheme={message.color_theme}
+              reactions={reactions[message.id]}
             />
           ))}
         </AnimatePresence>
