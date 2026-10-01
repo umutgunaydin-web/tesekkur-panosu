@@ -138,7 +138,9 @@ export async function settleModeration(
     : {
         status: "moderation_error",
         moderationDecision: null,
-        moderationReason: MODERATION_FAILURE_REASON,
+        moderationReason: errorType
+          ? `${MODERATION_FAILURE_REASON} (${errorType})`
+          : MODERATION_FAILURE_REASON,
         moderationConfidence: null,
         moderatedAt,
         publishedAt: null,

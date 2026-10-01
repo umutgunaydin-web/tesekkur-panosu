@@ -3,7 +3,7 @@ import "server-only";
 import { sendModerationRejectionEmail } from "@/lib/email/rejection";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 
-import { classifyWithGemini } from "./gemini";
+import { classifyRecognition } from "./gemini";
 import {
   settleModeration,
   type ModerationPatch,
@@ -74,7 +74,7 @@ export async function moderateRecognition(recognitionId: string): Promise<void> 
       return toStored(data as RecognitionRecord);
     },
     classify: (input) =>
-      classifyWithGemini({
+      classifyRecognition({
         message: input.message,
         category: input.category,
         recipientName: input.recipientName,

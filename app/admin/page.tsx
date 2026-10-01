@@ -8,6 +8,9 @@ import {
 
 export const dynamic = "force-dynamic";
 
+/** "Tekrar Dene" moderasyonu bu istekte çalıştırır. */
+export const maxDuration = 60;
+
 export default async function AdminPage({
   searchParams,
 }: {

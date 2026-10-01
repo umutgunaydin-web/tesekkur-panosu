@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireAdmin } from "@/lib/auth";
+import { moderateRecognition } from "@/lib/moderation/moderate";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSessionClient } from "@/lib/supabase/session";
 
@@ -171,6 +172,48 @@ export async function publishModerationError(
   await recordAction(recognitionId, user.id, "PUBLISH", reason);
   revalidatePath("/admin");
   revalidatePath("/");
+
+  return { status: "success" };
+}
+
+export async function retryModeration(
+  recognitionId: string,
+): Promise<AdminActionResult> {
+  await requireAdmin();
+  const admin = getSupabaseAdminClient();
+
+  if (!admin) {
+    return { status: "error", message: "Yönetici veritabanı bağlantısı yok." };
+  }
+
+  const { data, error } = await admin
+    .from("thanks_messages")
+    .update({ status: "pending", moderation_reason: null })
+    .eq("id", recognitionId)
+    .eq("status", "moderation_error")
+    .select("id");
+
+  if (error || !data?.length) {
+    return { status: "error", message: "Moderasyon yeniden başlatılamadı." };
+  }
+
+  await moderateRecognition(recognitionId);
+
+  const { data: row } = await admin
+    .from("thanks_messages")
+    .select("status")
+    .eq("id", recognitionId)
+    .maybeSingle();
+
+  revalidatePath("/admin");
+  revalidatePath("/");
+
+  if (row?.status === "moderation_error") {
+    return {
+      status: "error",
+      message: "Moderasyon servisi yine yanıt veremedi. Biraz sonra tekrar deneyin.",
+    };
+  }
 
   return { status: "success" };
 }

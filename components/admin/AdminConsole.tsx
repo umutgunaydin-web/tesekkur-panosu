@@ -11,6 +11,7 @@ import {
   publishRejected,
   removeFromWall,
   restoreToWall,
+  retryModeration,
 } from "@/app/admin/actions";
 import { Avatar } from "@/components/wall/Avatar";
 import { Button } from "@/components/ui/button";
@@ -95,6 +96,7 @@ export function AdminConsole({
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSaved, setPasswordSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [retryingId, setRetryingId] = useState<string | null>(null);
   const pageCount = Math.max(1, Math.ceil(count / ADMIN_PAGE_SIZE));
 
   const href = (next: { status?: string; page?: number; q?: string }) => {
@@ -136,6 +138,17 @@ export function AdminConsole({
       }
       setPublishTarget(null);
       setSelected(null);
+      router.refresh();
+    });
+  };
+
+  const retry = (row: AdminRecognition) => {
+    setActionError(null);
+    setRetryingId(row.id);
+    startTransition(async () => {
+      const result = await retryModeration(row.id);
+      setRetryingId(null);
+      if (result.status === "error") setActionError(result.message);
       router.refresh();
     });
   };
@@ -374,13 +387,23 @@ export function AdminConsole({
                         </Button>
                       ) : null}
                       {row.status === "moderation_error" ? (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => setPublishTarget(row)}
-                        >
-                          Yayına Al
-                        </Button>
+                        <div className="flex flex-wrap justify-end gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            disabled={isPending}
+                            onClick={() => retry(row)}
+                          >
+                            {retryingId === row.id ? "Deneniyor…" : "Tekrar Dene"}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setPublishTarget(row)}
+                          >
+                            Yayına Al
+                          </Button>
+                        </div>
                       ) : null}
                       {row.status === "rejected" ? (
                         <div className="flex flex-wrap justify-end gap-2">

@@ -2,22 +2,23 @@ import "server-only";
 
 import { GoogleGenAI, Type } from "@google/genai";
 
-import { MODERATION_ATTEMPTS, runModerationAttempts } from "./attempt";
+import { runModerationAttempts } from "./attempt";
 import {
-  GEMINI_FALLBACK_MODEL,
-  GEMINI_MODERATION_MODEL,
+  GEMINI_MODEL_CHAIN,
   GEMINI_THINKING_LEVEL,
   MODERATION_RETRY_DELAY_MS,
   MODERATION_TIMEOUT_MS,
 } from "./config";
+import { isClaudeConfigured, requestClaudeVerdict } from "./claude";
 import { localModerationVerdict } from "./local";
 import { MODERATION_SYSTEM_INSTRUCTION } from "./policy";
 import {
   parseModerationPayload,
+  parseModerationVerdict,
   type ModerationVerdict,
 } from "./verdict";
 
-type ClassifyInput = {
+export type ClassifyInput = {
   message: string;
   category: string;
   recipientName: string;
@@ -49,7 +50,7 @@ async function requestVerdict(
     ].join("\n"),
     config: {
       systemInstruction: MODERATION_SYSTEM_INSTRUCTION,
-      ...(attempt < MODERATION_ATTEMPTS
+      ...(attempt === 1
         ? { thinkingConfig: { thinkingLevel: GEMINI_THINKING_LEVEL } }
         : {}),
       responseMimeType: "application/json",
@@ -61,12 +62,43 @@ async function requestVerdict(
   return response.text ?? "";
 }
 
-export async function classifyWithGemini(
+/**
+ * Önce Claude'a sorar; yanıt yoksa veya geçersizse Gemini zincirine düşer.
+ * Hangi sağlayıcının karar verdiği loglanır.
+ */
+export async function classifyRecognition(
   input: ClassifyInput,
 ): Promise<ModerationVerdict> {
   const local = localModerationVerdict(input.message);
   if (local) return local;
 
+  if (isClaudeConfigured()) {
+    try {
+      const verdict = parseModerationVerdict(
+        parseModerationPayload(await requestClaudeVerdict(input)),
+      );
+      if (verdict) {
+        console.info("[moderation]", { provider: "claude" });
+        return verdict;
+      }
+      console.warn("[moderation]", { provider: "claude", errorType: "invalid_response" });
+    } catch (error) {
+      const status = (error as { status?: unknown }).status;
+      console.warn("[moderation]", {
+        provider: "claude",
+        errorType: typeof status === "number" ? `api_${status}` : (error as Error).message,
+      });
+    }
+  }
+
+  const verdict = await classifyWithGemini(input);
+  console.info("[moderation]", { provider: "gemini" });
+  return verdict;
+}
+
+async function classifyWithGemini(
+  input: ClassifyInput,
+): Promise<ModerationVerdict> {
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
@@ -77,14 +109,11 @@ export async function classifyWithGemini(
 
   return runModerationAttempts(
     async (attempt) => {
-      const model =
-        attempt < MODERATION_ATTEMPTS
-          ? GEMINI_MODERATION_MODEL
-          : GEMINI_FALLBACK_MODEL;
+      const model = GEMINI_MODEL_CHAIN[attempt - 1] ?? GEMINI_MODEL_CHAIN[0];
       return parseModerationPayload(
         await requestVerdict(ai, input, model, attempt),
       );
     },
-    { delayMs: MODERATION_RETRY_DELAY_MS },
+    { attempts: GEMINI_MODEL_CHAIN.length, delayMs: MODERATION_RETRY_DELAY_MS },
   );
 }

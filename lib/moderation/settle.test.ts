@@ -168,7 +168,7 @@ test("Gemini erişilemezse mesaj yayınlanmaz", async () => {
   assert.equal(result.errorType, "Error");
   assert.equal(state.saves[0]?.publishedAt, null);
   assert.equal(state.saves[0]?.status, "moderation_error");
-  assert.equal(state.saves[0]?.moderationReason, "Moderasyon servisi yanıt veremedi.");
+  assert.equal(state.saves[0]?.moderationReason, "Moderasyon servisi yanıt veremedi. (Error)");
   assert.equal(state.emails.length, 0);
 });
 
