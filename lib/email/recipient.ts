@@ -11,6 +11,9 @@ import { buildRecipientEmail } from "./template";
  * gönderilir; e-posta hatası yayını etkilemez, yalnız loglanır.
  */
 export async function notifyRecipient(recognitionId: string): Promise<void> {
+  // Alan adı Resend'de doğrulanana kadar kapalı; açmak için Vercel'de "true" yapılır.
+  if (process.env.RECIPIENT_EMAILS_ENABLED !== "true") return;
+
   const admin = getSupabaseAdminClient();
   if (!admin) return;
 
