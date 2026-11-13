@@ -47,8 +47,8 @@ ve mevcut çalışan kimliklerini korur. CSV'de olmayan çalışanlar silinmez.
 
 ## Moderasyon
 
-Yeni teşekkür `pending` olarak kaydedilir. Sunucu aksiyonu önce Claude Haiku 4.5 ile değerlendirir;
-Claude yanıt veremezse Gemini modellerine sırayla düşer (`lib/moderation/config.ts`).
+Yeni teşekkür `pending` olarak kaydedilir. Sunucu aksiyonu sırayla ekibin Gemma sunucusu (`LOCAL_LLM_*`, dakikada 20 istek),
+Claude Haiku 4.5 ve Gemini modelleriyle değerlendirir; ilk geçerli karar kullanılır (`lib/moderation/config.ts`).
 Onaylanan kayıt `approved` olur ve pano yalnızca bu durumu okur. Ret, hata ve bekleyen
 kayıtlar ekrana düşmez. İstemci `status` güncelleyemez.
 
@@ -57,7 +57,8 @@ kayıtlar ekrana düşmez. İstemci `status` güncelleyemez.
 | Değişken | Açıklama |
 | --- | --- |
 | `SUPABASE_SERVICE_ROLE_KEY` | Onay ve ret yazmak için |
-| `ANTHROPIC_API_KEY` | Birincil moderasyon (Claude Haiku 4.5) |
+| `LOCAL_LLM_URL`, `LOCAL_LLM_API_KEY`, `LOCAL_LLM_MODEL` | Birincil moderasyon: ekibin Gemma sunucusu (`ccs-general`) |
+| `ANTHROPIC_API_KEY` | İkinci moderasyon (Claude Haiku 4.5) |
 | `GEMINI_API_KEY` | Yedek moderasyon, Google AI Studio anahtarı |
 | `ADMIN_AFFAIRS_EMAIL` | Ret bildiriminin alıcısı |
 | `RESEND_API_KEY` | E-posta sağlayıcısı |

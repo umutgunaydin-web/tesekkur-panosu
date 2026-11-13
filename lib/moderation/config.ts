@@ -1,9 +1,16 @@
 import { ThinkingLevel } from "@google/genai";
 
-/** Birincil moderasyon modeli. Ücretli hesap; Gemini yalnız yedek. */
+/**
+ * Sıra: yerel kurallar → Gemma (ekip sunucusu) → Claude → Gemini.
+ * Hepsi yavaş başarısız olsa bile toplam süre sayfanın 60 sn sınırına sığar:
+ * Gemma 10 (ilk istekte model ısınır) + Claude 10 + Gemini 3×10 + 3 sn bekleme ≈ 53 sn.
+ */
+export const GEMMA_TIMEOUT_MS = 10_000;
+
+/** İkinci moderatör. Ücretli hesap; günlük üst sınır lib/limits.ts'te. */
 export const CLAUDE_MODERATION_MODEL = "claude-haiku-4-5";
 
-/** SDK bir kez yeniden dener; iki deneme birlikte ~20 sn'yi geçmez. */
+/** Gemma ve Gemini yedekte olduğu için Claude yeniden denemez. */
 export const CLAUDE_TIMEOUT_MS = 10_000;
 
 /**

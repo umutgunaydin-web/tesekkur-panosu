@@ -84,7 +84,7 @@ export type ThanksModerationUpdate = {
   recipient_email_sent_at?: string | null;
 };
 
-export type ModerationProvider = "claude" | "gemini" | "local";
+export type ModerationProvider = "gemma" | "claude" | "gemini" | "local";
 
 export const REACTION_KINDS = ["clap", "heart"] as const;
 export type ReactionKind = (typeof REACTION_KINDS)[number];

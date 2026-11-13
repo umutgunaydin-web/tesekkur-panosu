@@ -10,6 +10,7 @@ import {
   MODERATION_TIMEOUT_MS,
 } from "./config";
 import { isClaudeConfigured, requestClaudeVerdict } from "./claude";
+import { isGemmaConfigured, requestGemmaVerdict } from "./gemma";
 import { localModerationVerdict } from "./local";
 import type { ModerationProvider } from "@/lib/types";
 
@@ -69,9 +70,30 @@ async function requestVerdict(
   return response.text ?? "";
 }
 
+function errorTypeOf(error: unknown): string {
+  const status = (error as { status?: unknown }).status;
+  if (typeof status === "number") return `api_${status}`;
+  return error instanceof Error ? error.name === "TimeoutError" ? "timeout" : error.message : "unknown";
+}
+
+/** Bir sağlayıcıya sorar; geçerli karar yoksa null döner ve nedeni loglar. */
+async function tryProvider(
+  provider: ModerationProvider,
+  request: () => Promise<string>,
+): Promise<ModerationVerdict | null> {
+  try {
+    const verdict = parseModerationVerdict(parseModerationPayload(await request()));
+    if (verdict) return verdict;
+    console.warn("[moderation]", { provider, errorType: "invalid_response" });
+  } catch (error) {
+    console.warn("[moderation]", { provider, errorType: errorTypeOf(error) });
+  }
+  return null;
+}
+
 /**
- * Önce Claude'a sorar; yanıt yoksa veya geçersizse Gemini zincirine düşer.
- * Kararı hangi sağlayıcının verdiği kayda yazılır.
+ * Sırayla Gemma (ekip sunucusu), Claude ve Gemini'ye sorar; ilk geçerli
+ * karar kullanılır. Kararı hangi sağlayıcının verdiği kayda yazılır.
  */
 export async function classifyRecognition(
   input: ClassifyInput,
@@ -80,20 +102,14 @@ export async function classifyRecognition(
   const local = localModerationVerdict(input.message);
   if (local) return { verdict: local, provider: "local" };
 
+  if (isGemmaConfigured()) {
+    const verdict = await tryProvider("gemma", () => requestGemmaVerdict(input));
+    if (verdict) return { verdict, provider: "gemma" };
+  }
+
   if (options.allowClaude && isClaudeConfigured()) {
-    try {
-      const verdict = parseModerationVerdict(
-        parseModerationPayload(await requestClaudeVerdict(input)),
-      );
-      if (verdict) return { verdict, provider: "claude" };
-      console.warn("[moderation]", { provider: "claude", errorType: "invalid_response" });
-    } catch (error) {
-      const status = (error as { status?: unknown }).status;
-      console.warn("[moderation]", {
-        provider: "claude",
-        errorType: typeof status === "number" ? `api_${status}` : (error as Error).message,
-      });
-    }
+    const verdict = await tryProvider("claude", () => requestClaudeVerdict(input));
+    if (verdict) return { verdict, provider: "claude" };
   }
 
   return { verdict: await classifyWithGemini(input), provider: "gemini" };

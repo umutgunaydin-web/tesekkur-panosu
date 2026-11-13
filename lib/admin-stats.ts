@@ -106,6 +106,7 @@ export async function getMonthlyStats(month: string): Promise<MonthlyStats | nul
   }
 
   const providerLabels: Record<string, string> = {
+    gemma: "Gemma (ekip sunucusu)",
     claude: "Claude",
     gemini: "Gemini (yedek)",
     local: "Yerel kural",

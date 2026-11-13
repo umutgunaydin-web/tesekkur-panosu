@@ -23,7 +23,7 @@ export function isClaudeConfigured(): boolean {
 
 /** Ham JSON metnini döner; doğrulama çağıranda yapılır. */
 export async function requestClaudeVerdict(input: ClassifyInput): Promise<string> {
-  const client = new Anthropic({ timeout: CLAUDE_TIMEOUT_MS, maxRetries: 1 });
+  const client = new Anthropic({ timeout: CLAUDE_TIMEOUT_MS, maxRetries: 0 });
 
   const response = await client.messages.create({
     model: CLAUDE_MODERATION_MODEL,
