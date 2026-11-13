@@ -4,24 +4,28 @@
   --font-sans: var(--font-plus-jakarta), system-ui, sans-serif;
   --font-hand: var(--font-caveat), "Plus Jakarta Sans", cursive;
 
-  /* AloTech moru */
-  --color-brand-950: #260c4d;
-  --color-brand-900: #331066;
-  --color-brand-800: #421a85;
-  --color-brand-700: #5b21b6;
-  --color-brand-500: #7c3aed;
-  --color-brand-200: #d8cbf7;
-  --color-brand-100: #ebe3fb;
-  --color-brand-50: #f5f1fd;
+  /* AloTech kurumsal: lacivert zemin, kırmızı vurgu ("Alo"), gri ("Tech") */
+  --color-brand-950: #101a36;
+  --color-brand-900: #1c2b52;
+  --color-brand-800: #26386a;
+  --color-brand-700: #31477f;
+  --color-brand-600: #3d5592;
+  --color-brand-500: #4a64a8;
+  --color-brand-200: #cdd6ea;
+  --color-brand-100: #e7ecf6;
+  --color-brand-50: #f3f6fb;
 
-  --color-ink: #231343;
-  --color-ink-soft: #4b3a6b;
-  --color-sun: #fbc93d;
+  --color-ink: #17213d;
+  --color-ink-soft: #4a5470;
+  /* Vurgu rengi; ad tarihsel, değer AloTech kırmızısı. */
+  --color-sun: #e25a4e;
+  --color-brand-grey: #c9cdd6;
+  --color-page: #f3f5f9;
 }
 
 :root {
-  --background: #f5f2fb;
-  --foreground: #231343;
+  --background: #f3f5f9;
+  --foreground: #17213d;
 }
 
 html,
@@ -57,4 +61,41 @@ body {
   line-clamp: 5;
   overflow: hidden;
   overflow-wrap: anywhere;
+}
+
+/* Kültür ekranı: teşekkür şeridi aşağı doğru akar. Liste iki kez çizilir; -50%'den 0'a kayınca döngü dikişsiz olur. */
+@keyframes culture-strip-down {
+  from {
+    transform: translateY(-50%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+
+/* Yeni gelen teşekkür şeridin üstüne yukarıdan kayarak girer. */
+/* Saydamlık kullanılmaz: animasyon çalışmasa da kart tamamen görünür kalır. */
+@keyframes culture-pin-in {
+  from {
+    transform: translateY(-28px) scale(0.96);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes culture-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .culture-motion {
+    animation: none !important;
+  }
 }

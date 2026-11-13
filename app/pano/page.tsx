@@ -25,7 +25,7 @@ export default async function ReactionPage() {
     : {};
 
   return (
-    <main className="min-h-screen bg-[#F5F2FB]">
+    <main className="min-h-screen bg-page">
       <header className="bg-brand-900 px-6 pt-10 pb-16 text-white sm:px-8">
         <div className="mx-auto max-w-lg">
           <AloTechLogo tone="light" className="text-xl" />

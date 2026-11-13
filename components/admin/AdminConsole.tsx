@@ -199,7 +199,7 @@ export function AdminConsole({
   };
 
   return (
-    <main className="min-h-screen bg-[#F5F2FB] px-4 py-8 sm:px-8">
+    <main className="min-h-screen bg-page px-4 py-8 sm:px-8">
       <div className="mx-auto max-w-6xl">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -210,8 +210,14 @@ export function AdminConsole({
           </div>
           <div className="flex gap-2">
             <Link
+              href="/admin/kultur"
+              className="inline-flex h-10 items-center rounded-xl bg-white px-4 text-sm font-semibold text-brand-800 ring-1 ring-brand-200"
+            >
+              Kültür ekranı
+            </Link>
+            <Link
               href="/admin/istatistik"
-              className="inline-flex h-10 items-center rounded-xl bg-violet-700 px-4 text-sm font-semibold text-white"
+              className="inline-flex h-10 items-center rounded-xl bg-brand-700 px-4 text-sm font-semibold text-white"
             >
               Aylık istatistikler
             </Link>
@@ -265,7 +271,7 @@ export function AdminConsole({
             name="q"
             defaultValue={query}
             placeholder="Ara..."
-            className="h-11 flex-1 rounded-xl border border-violet-200 bg-white px-4 text-sm"
+            className="h-11 flex-1 rounded-xl border border-brand-200 bg-white px-4 text-sm"
           />
           {status !== "all" ? (
             <input type="hidden" name="status" value={status} />
@@ -283,8 +289,8 @@ export function AdminConsole({
               className={cn(
                 "rounded-full px-3 py-1.5 text-sm font-semibold",
                 status === filter.id
-                  ? "bg-violet-700 text-white"
-                  : "bg-white text-violet-800",
+                  ? "bg-brand-700 text-white"
+                  : "bg-white text-brand-800",
               )}
             >
               {filter.label}
@@ -577,7 +583,7 @@ export function AdminConsole({
                 value={currentPassword}
                 onChange={(event) => setCurrentPassword(event.target.value)}
                 required
-                className="mt-2 h-11 w-full rounded-xl border border-violet-200 px-3 text-sm"
+                className="mt-2 h-11 w-full rounded-xl border border-brand-200 px-3 text-sm"
               />
             </label>
             <label className="mt-3 block text-sm font-medium text-slate-600">
@@ -589,7 +595,7 @@ export function AdminConsole({
                 onChange={(event) => setNewPassword(event.target.value)}
                 required
                 minLength={8}
-                className="mt-2 h-11 w-full rounded-xl border border-violet-200 px-3 text-sm"
+                className="mt-2 h-11 w-full rounded-xl border border-brand-200 px-3 text-sm"
               />
             </label>
             <label className="mt-3 block text-sm font-medium text-slate-600">
@@ -601,7 +607,7 @@ export function AdminConsole({
                 onChange={(event) => setConfirmPassword(event.target.value)}
                 required
                 minLength={8}
-                className="mt-2 h-11 w-full rounded-xl border border-violet-200 px-3 text-sm"
+                className="mt-2 h-11 w-full rounded-xl border border-brand-200 px-3 text-sm"
               />
             </label>
             {passwordError ? (
@@ -730,7 +736,7 @@ export function AdminConsole({
               <textarea
                 value={reason}
                 onChange={(event) => setReason(event.target.value)}
-                className="mt-2 min-h-24 w-full rounded-xl border border-violet-200 p-3 text-sm"
+                className="mt-2 min-h-24 w-full rounded-xl border border-brand-200 p-3 text-sm"
               />
             </label>
             <div className="mt-5 flex justify-end gap-2">

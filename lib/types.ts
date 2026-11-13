@@ -162,6 +162,75 @@ export type Database = {
         Update: Partial<Employee>;
         Relationships: [];
       };
+      culture_slides: {
+        Row: {
+          id: string;
+          type: string;
+          eyebrow: string;
+          title: string;
+          body: string;
+          bullets: string[];
+          event_at: string | null;
+          location: string | null;
+          image_path: string | null;
+          person_employee_id: string | null;
+          person_role: string | null;
+          starts_at: string;
+          ends_at: string;
+          sort_order: number;
+          status: "draft" | "published";
+          created_by: string | null;
+          updated_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          type: string;
+          title: string;
+          ends_at: string;
+          id?: string;
+          eyebrow?: string;
+          body?: string;
+          bullets?: string[];
+          event_at?: string | null;
+          location?: string | null;
+          image_path?: string | null;
+          person_employee_id?: string | null;
+          person_role?: string | null;
+          starts_at?: string;
+          sort_order?: number;
+          status?: "draft" | "published";
+          created_by?: string | null;
+          updated_by?: string | null;
+        };
+        Update: Partial<{
+          type: string;
+          eyebrow: string;
+          title: string;
+          body: string;
+          bullets: string[];
+          event_at: string | null;
+          location: string | null;
+          image_path: string | null;
+          person_employee_id: string | null;
+          person_role: string | null;
+          starts_at: string;
+          ends_at: string;
+          sort_order: number;
+          status: "draft" | "published";
+          updated_by: string | null;
+          updated_at: string;
+        }>;
+        Relationships: [
+          {
+            foreignKeyName: "culture_slides_person_employee_id_fkey";
+            columns: ["person_employee_id"];
+            isOneToOne: false;
+            referencedRelation: "employees";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       recognition_reactions: {
         Row: {
           recognition_id: string;

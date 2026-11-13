@@ -179,3 +179,14 @@ adıyla yazılır. Panoda anonim mesajlar diğerleriyle aynı görsel ağırlık
 Gönderim isimle yapılır; anonim seçenek yoktur. Kayıtlar yalnız sunucu aksiyonundan (service role)
 eklenir. Aynı IP'den 10 dakikada 20 gönderim ve Claude için günlük 200 moderasyon sınırı vardır
 (`lib/limits.ts`); sınır dolunca moderasyon Gemini ile sürer.
+
+## Kültür ekranı
+
+- `/` → TV'deki kültür ekranı: solda (1/4) QR'lı teşekkür şeridi, sağda (3/4) İK içerikleri.
+  Yeni onaylanan teşekkür 1 dakika şeridin üstünde "Yeni" olarak durur; arka arkaya gelenler sıraya girer.
+- `/admin/kultur` → İK içerik paneli: şablonlu form, karakter sınırları, canlı TV önizlemesi,
+  görsel kırpma, yayın başlangıç/bitiş tarihi. İçerikler `culture_slides` tablosunda, görseller
+  `culture-images` bucket'ında.
+- `/klasik` → kültür ekranından önceki kart duvarı (yedek). `/kultur` ana adrese yönlenir.
+
+Renkler `app/globals.css` içindeki tema tokenlarından gelir (AloTech kurumsal: lacivert, kırmızı vurgu, gri).

@@ -72,7 +72,7 @@ export function EmployeePicker({
 
   if (selected) {
     return (
-      <div className="mt-2 flex items-center gap-3 rounded-xl border border-violet-200 bg-violet-50 p-3">
+      <div className="mt-2 flex items-center gap-3 rounded-xl border border-brand-200 bg-brand-50 p-3">
         <Avatar
           name={selected.name}
           avatarUrl={selected.avatar_url}
@@ -134,7 +134,7 @@ export function EmployeePicker({
             "flex h-12 w-full rounded-xl border bg-white px-4 pr-10 text-base text-slate-900 shadow-sm placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2",
             invalid
               ? "border-rose-400 focus-visible:ring-rose-200"
-              : "border-violet-200 focus-visible:border-violet-500 focus-visible:ring-violet-200",
+              : "border-brand-200 focus-visible:border-brand-500 focus-visible:ring-brand-200",
           )}
         />
         <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-slate-400" />
@@ -144,7 +144,7 @@ export function EmployeePicker({
         <ul
           id={listId}
           role="listbox"
-          className="absolute z-20 mt-2 max-h-80 w-full overflow-y-auto rounded-2xl border border-violet-100 bg-white p-2 shadow-xl"
+          className="absolute z-20 mt-2 max-h-80 w-full overflow-y-auto rounded-2xl border border-brand-100 bg-white p-2 shadow-xl"
         >
           {results.length === 0 ? (
             <li className="px-3 py-4 text-sm text-slate-500">
@@ -159,7 +159,7 @@ export function EmployeePicker({
                   onClick={() => choose(employee)}
                   className={cn(
                     "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left",
-                    index === activeIndex ? "bg-violet-50" : "bg-white",
+                    index === activeIndex ? "bg-brand-50" : "bg-white",
                   )}
                 >
                   <Avatar

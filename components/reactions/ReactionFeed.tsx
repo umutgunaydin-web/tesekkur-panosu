@@ -151,8 +151,8 @@ export function ReactionFeed({
                     className={cn(
                       "flex h-11 min-w-16 items-center justify-center gap-1.5 rounded-full border px-4 text-sm font-bold tabular-nums transition-colors",
                       active
-                        ? "border-violet-700 bg-violet-700 text-white"
-                        : "border-violet-200 bg-white text-violet-900",
+                        ? "border-brand-700 bg-brand-700 text-white"
+                        : "border-brand-200 bg-white text-brand-900",
                     )}
                   >
                     <span aria-hidden>{REACTION_EMOJI[kind]}</span>

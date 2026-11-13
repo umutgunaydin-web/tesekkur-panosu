@@ -1,32 +1,37 @@
-import { AppreciationWall } from "@/components/wall/AppreciationWall";
-import { Sidebar } from "@/components/wall/Sidebar";
-import { getSessionUser } from "@/lib/auth";
-import { isAdminRole } from "@/lib/auth-role";
-import { getSiteUrl } from "@/lib/env";
-import { getLatestMessages, getMonthlyThanksCount } from "@/lib/messages";
+import type { Metadata } from "next";
 
-// Kiosk ekranı her açılışta en güncel listeyi almalı.
+import { CultureScreen } from "@/components/culture/CultureScreen";
+import { fetchPublishedSlides } from "@/lib/culture/query";
+import { getSiteUrl, getSupabaseEnv, isSupabaseConfigured } from "@/lib/env";
+import { getLatestMessages, getMonthlyThanksCount } from "@/lib/messages";
+import { getSupabaseServerClient } from "@/lib/supabase/server";
+
+export const metadata: Metadata = { title: "Kültür Ekranı | AloTech" };
+
+// TV'deki sabit adres (/) kültür ekranını açar; her açılışta güncel içerikle başlar.
 export const dynamic = "force-dynamic";
 
-export default async function AppreciationWallPage() {
-  const [initialMessages, initialMonthlyCount, sessionUser] = await Promise.all([
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ slayt?: string }>;
+}) {
+  const { slayt } = await searchParams;
+  const [initialMessages, initialMonthlyCount, slides] = await Promise.all([
     getLatestMessages(),
     getMonthlyThanksCount(),
-    getSessionUser(),
+    isSupabaseConfigured()
+      ? fetchPublishedSlides(getSupabaseServerClient(), getSupabaseEnv().url)
+      : Promise.resolve([]),
   ]);
 
-  const submitUrl = `${getSiteUrl().replace(/\/$/, "")}/gonder`;
-
   return (
-    <main className="kiosk-screen grid h-screen w-screen grid-cols-[clamp(250px,17vw,340px)_minmax(0,1fr)] bg-[#F5F2FB]">
-      <Sidebar
-        submitUrl={submitUrl}
-        adminHref={isAdminRole(sessionUser?.role) ? "/admin" : null}
-      />
-      <AppreciationWall
-        initialMessages={initialMessages}
-        initialMonthlyCount={initialMonthlyCount}
-      />
-    </main>
+    <CultureScreen
+      initialMessages={initialMessages}
+      initialMonthlyCount={initialMonthlyCount}
+      submitUrl={`${getSiteUrl().replace(/\/$/, "")}/gonder`}
+      initialSlides={slides ?? []}
+      initialSlide={Math.max(0, Number(slayt ?? "1") - 1) || 0}
+    />
   );
 }

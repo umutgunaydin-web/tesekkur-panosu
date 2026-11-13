@@ -8,7 +8,7 @@ export default async function AdminLoginPage({
   const params = await searchParams;
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#F5F2FB] px-4">
+    <main className="flex min-h-screen items-center justify-center bg-page px-4">
       <LoginForm denied={params.yetki === "yok"} />
     </main>
   );

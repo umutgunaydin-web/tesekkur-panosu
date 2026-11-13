@@ -41,7 +41,7 @@ function HandDrawnHeart() {
     >
       <path
         d="M32 51C32 51 6 35.5 6 20.5C6 11.5 12.5 5.5 20 5.5C25.5 5.5 29.5 8.5 32 13C34.5 8.5 38.5 5.5 44 5.5C51.5 5.5 58 11.5 58 20.5C58 35.5 32 51 32 51Z"
-        stroke="#FBC93D"
+        stroke="#E25A4E"
         strokeWidth={6}
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -59,9 +59,9 @@ function AccentStrokes() {
       strokeLinecap="round"
       className="h-[0.8em] w-[0.5em] shrink-0"
     >
-      <path d="M6 10 L20 4" stroke="#7C3AED" strokeWidth={5} />
-      <path d="M8 24 L26 24" stroke="#7C3AED" strokeWidth={5} />
-      <path d="M6 38 L20 44" stroke="#7C3AED" strokeWidth={5} />
+      <path d="M6 10 L20 4" stroke="#E25A4E" strokeWidth={5} />
+      <path d="M8 24 L26 24" stroke="#E25A4E" strokeWidth={5} />
+      <path d="M6 38 L20 44" stroke="#E25A4E" strokeWidth={5} />
     </svg>
   );
 }

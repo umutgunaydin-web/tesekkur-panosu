@@ -63,7 +63,7 @@ function BarList({ rows, withAvatar = false }: { rows: RankedRow[]; withAvatar?:
       {rows.map((row, index) => (
         <li
           key={`${row.label}-${index}`}
-          className="group grid grid-cols-[minmax(0,11rem)_1fr_2.5rem] items-center gap-3 rounded-lg px-1 py-0.5 hover:bg-violet-50"
+          className="group grid grid-cols-[minmax(0,11rem)_1fr_2.5rem] items-center gap-3 rounded-lg px-1 py-0.5 hover:bg-brand-50"
           title={`${row.label}: ${row.value}`}
         >
           <span className="flex min-w-0 items-center gap-2 text-sm text-slate-700">
@@ -72,9 +72,9 @@ function BarList({ rows, withAvatar = false }: { rows: RankedRow[]; withAvatar?:
             ) : null}
             <span className="truncate">{row.label}</span>
           </span>
-          <span className="h-3 rounded-r bg-violet-100">
+          <span className="h-3 rounded-r bg-brand-100">
             <span
-              className="block h-full rounded-r bg-violet-600 group-hover:bg-violet-700"
+              className="block h-full rounded-r bg-brand-600 group-hover:bg-brand-700"
               style={{ width: `${(row.value / max) * 100}%` }}
             />
           </span>
@@ -103,7 +103,7 @@ function DailyChart({ daily }: { daily: { day: number; value: number }[] }) {
             title={`${item.day}. gün: ${item.value} teşekkür`}
           >
             <div
-              className="w-full rounded-t bg-violet-600 group-hover:bg-violet-700"
+              className="w-full rounded-t bg-brand-600 group-hover:bg-brand-700"
               style={{ height: item.value ? `${(item.value / max) * 100}%` : 0 }}
             />
           </div>
@@ -133,11 +133,11 @@ export default async function StatsPage({
   const isCurrent = month === currentMonth();
 
   return (
-    <main className="min-h-screen bg-[#F5F2FB] px-4 py-8 sm:px-8">
+    <main className="min-h-screen bg-page px-4 py-8 sm:px-8">
       <div className="mx-auto max-w-6xl">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <Link href="/admin" className="text-sm font-semibold text-violet-700">
+            <Link href="/admin" className="text-sm font-semibold text-brand-700">
               ← Yönetim paneli
             </Link>
             <h1 className="mt-2 text-3xl font-extrabold text-brand-950">Aylık İstatistikler</h1>
@@ -145,7 +145,7 @@ export default async function StatsPage({
           <nav className="flex items-center gap-2" aria-label="Ay seçimi">
             <Link
               href={`/admin/istatistik?ay=${shiftMonth(month, -1)}`}
-              className="rounded-xl bg-white px-3 py-2 text-sm font-semibold text-violet-800 shadow-sm"
+              className="rounded-xl bg-white px-3 py-2 text-sm font-semibold text-brand-800 shadow-sm"
             >
               ← Önceki
             </Link>
@@ -155,7 +155,7 @@ export default async function StatsPage({
             ) : (
               <Link
                 href={`/admin/istatistik?ay=${shiftMonth(month, 1)}`}
-                className="rounded-xl bg-white px-3 py-2 text-sm font-semibold text-violet-800 shadow-sm"
+                className="rounded-xl bg-white px-3 py-2 text-sm font-semibold text-brand-800 shadow-sm"
               >
                 Sonraki →
               </Link>
@@ -207,7 +207,7 @@ export default async function StatsPage({
                 ) : (
                   <ol className="grid gap-3 md:grid-cols-3">
                     {stats.topReacted.map((row) => (
-                      <li key={row.id} className="rounded-xl bg-violet-50 p-4">
+                      <li key={row.id} className="rounded-xl bg-brand-50 p-4">
                         <p className="font-extrabold text-brand-950">{toDativeCase(row.recipient)}</p>
                         <p className="mt-1 text-sm text-ink">{row.message}</p>
                         <p className="mt-2 text-xs text-slate-500">

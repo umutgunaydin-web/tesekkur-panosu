@@ -50,7 +50,7 @@ function SuccessPanel({ onReset }: { onReset: () => void }) {
       <Button size="lg" variant="outline" onClick={onReset} className="w-full">
         Yeni teşekkür gönder
       </Button>
-      <Link href="/pano" className="text-sm font-bold text-violet-700">
+      <Link href="/pano" className="text-sm font-bold text-brand-700">
         Panodaki teşekkürlere tepki bırak →
       </Link>
     </motion.div>
@@ -189,8 +189,8 @@ export function SubmitForm({ employees }: { employees: EmployeePublic[] }) {
                     className={cn(
                       "rounded-full border px-4 py-2.5 text-sm font-semibold transition-colors",
                       isSelected
-                        ? "border-violet-700 bg-violet-700 text-white"
-                        : "border-violet-200 bg-white text-violet-800 hover:bg-violet-50",
+                        ? "border-brand-700 bg-brand-700 text-white"
+                        : "border-brand-200 bg-white text-brand-800 hover:bg-brand-50",
                     )}
                   >
                     #{category}
