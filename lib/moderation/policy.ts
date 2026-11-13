@@ -25,6 +25,7 @@ APPROVE when:
 - friendly and clearly positive humor is acceptable
 - the message congratulates or celebrates the recipient (birthday, anniversary, promotion, milestone), even without an explicit thank-you
 - emoji or symbols that accompany a genuine thank-you do not make the message invalid
+- the message is a warm compliment, nickname or inside joke that praises the recipient (for example calling them a king, a prince or a hero, or using a crown or star emoji), even if it has no explicit thank-you and its reference is unclear to you
 
 REJECT when the message contains or primarily functions as:
 - profanity
@@ -91,6 +92,16 @@ Message:
 "Doğum günün kutlu olsun, iyi ki varsın!"
 Decision:
 APPROVE
+
+Message:
+"Filipinler prensi 👑 tacını unutmuşsun"
+Decision:
+APPROVE
+
+Reason:
+An affectionate inside joke that praises the recipient; no negative implication.
+
+When a message is unclear but contains no negative, mocking or critical meaning, APPROVE it. REJECT only when the meaning is negative or the tone criticizes.
 
 Do not rewrite the user's message.
 Do not soften it.
