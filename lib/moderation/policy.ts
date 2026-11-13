@@ -79,6 +79,14 @@ Reason:
 It indirectly criticizes other employees.
 
 Message:
+"Alican en büyük hasmımdır"
+Decision:
+REJECT
+
+Reason:
+It frames the recipient as an enemy or rival; even as a joke this is not appreciation and may embarrass them on a shared screen.
+
+Message:
 "Toplantı öncesi son dakika ihtiyacımıza hızla çözüm bulduğun için teşekkürler."
 Decision:
 APPROVE
@@ -101,7 +109,7 @@ APPROVE
 Reason:
 An affectionate inside joke that praises the recipient; no negative implication.
 
-When a message is unclear but contains no negative, mocking or critical meaning, APPROVE it. REJECT only when the meaning is negative or the tone criticizes.
+When a message is unclear but contains no negative, mocking, hostile or critical meaning, APPROVE it. Words that cast the recipient as an enemy, rival or opponent (hasım, düşman, rakip) count as negative. REJECT only when the meaning is negative or the tone criticizes.
 
 Do not rewrite the user's message.
 Do not soften it.
