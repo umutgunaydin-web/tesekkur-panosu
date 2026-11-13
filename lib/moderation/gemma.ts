@@ -50,6 +50,9 @@ export async function requestGemmaVerdict(input: ClassifyInput): Promise<string>
   });
 
   if (!response.ok) {
+    // Ağ geçidinin ret nedeni (ör. IP/bot koruması) loglarda görünsün; anahtar yanıtta yer almaz.
+    const detail = (await response.text().catch(() => "")).replace(/\s+/g, " ").slice(0, 160);
+    console.warn("[moderation]", { provider: "gemma", status: response.status, detail });
     throw Object.assign(new Error(`gemma_${response.status}`), { status: response.status });
   }
 
